@@ -25,13 +25,12 @@ export default function RootLayout({ children }) {
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <Navbar></Navbar>
         <AuthProvider>
+          <Navbar></Navbar>
           <main className="h-screen h-max-[300px]">{children}</main>
         </AuthProvider>
         <Footer></Footer>
       </body>
-      
     </html>
   );
 }
