@@ -1,10 +1,27 @@
-export default function ProductDetailsPage({ params }) {
+"use client";
+
+import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
+import ProductDetails from "../../components/ProductDetails";
+
+export default function ProductDetailsPage() {
+  const params = useParams();
   const { id } = params;
 
-  return (
-    <div>
-      <h1>Product Details Page</h1>
-      <p>Details for product ID: {id}</p>
-    </div>
-  );
+  const [product, setProduct] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch(`/api/products/${id}?id=${id}`)
+      .then(res => res.json())
+      .then(data => {
+        setProduct(data);
+        setLoading(false);
+      });
+  }, [id]);
+
+  if (loading) return <p className="text-center mt-10">Loading...</p>;
+  if (!product) return <p className="text-center mt-10 text-red-500">Product not found</p>;
+
+  return <ProductDetails product={product} />;
 }
