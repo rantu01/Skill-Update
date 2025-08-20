@@ -4,5 +4,6 @@ export default function LoginPage() {
       <h1>Login Page</h1>
       <p>Here user will log in</p>
     </div>
+    
   );
 }
