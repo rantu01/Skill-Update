@@ -36,7 +36,7 @@ export default function DashboardLayout({ children }) {
         <h2 className="text-2xl font-bold hidden md:block">Dashboard</h2>
 
         <nav className="flex flex-col gap-4 h-screen">
-          <Link href="/dashboard" onClick={() => setIsSidebarOpen(false)} className="hover:text-gray-300">
+          <Link href="/" onClick={() => setIsSidebarOpen(false)} className="hover:text-gray-300">
             🏠 Home
           </Link>
           <Link href="/products" onClick={() => setIsSidebarOpen(false)} className="hover:text-gray-300">

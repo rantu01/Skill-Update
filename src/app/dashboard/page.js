@@ -19,7 +19,7 @@ export default function DashboardHome() {
       if (status === "loading") return <p className="text-center mt-10">Checking session...</p>;
       if (!session) return null; // redirecting
   return (
-    <div>
+    <div className="mt-18 px-6">
       <h1 className="text-3xl font-bold mb-6">Welcome to Dashboard</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
