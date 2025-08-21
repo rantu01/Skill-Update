@@ -125,6 +125,8 @@ export default function LoginPage() {
             <p className="text-gray-200 mb-8">
               Sign in to access exclusive features, track your orders, and enjoy a personalized shopping experience.
             </p>
+
+            
             
             <div className="space-y-4">
               {[
@@ -141,6 +143,9 @@ export default function LoginPage() {
                 );
               })}
             </div>
+            <p className="text-4xl p-6">
+              use only google social login, <br /> other login option will added latter 
+            </p>
           </motion.div>
         </div>
 
