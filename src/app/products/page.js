@@ -4,14 +4,17 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import ProductCard from "../components/ProductCard";
 import { 
-  Filter, 
   Grid, 
   List, 
   Search, 
   SlidersHorizontal,
   X,
-  ChevronDown
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight
 } from "lucide-react";
+
+const PRODUCTS_PER_PAGE = 4;
 
 export default function ProductsPage() {
   const [products, setProducts] = useState([]);
@@ -21,9 +24,10 @@ export default function ProductsPage() {
   const [showFilters, setShowFilters] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategories, setSelectedCategories] = useState([]);
-  const [priceRange, setPriceRange] = useState([0, 1000]);
+  const [priceRange, setPriceRange] = useState([0, Infinity]);
+  const [maxPrice, setMaxPrice] = useState(1000);
+  const [currentPage, setCurrentPage] = useState(1);
 
-  // Mock categories - in a real app, these would come from your API
   const categories = ["Electronics", "Clothing", "Home", "Books", "Sports"];
 
   useEffect(() => {
@@ -31,12 +35,14 @@ export default function ProductsPage() {
       .then(res => res.json())
       .then(data => {
         setProducts(data);
+        const max = Math.max(...data.map(p => p.price), 1000);
+        setPriceRange([0, max]);
+        setMaxPrice(max);
         setLoading(false);
       })
       .catch(() => setLoading(false));
   }, []);
 
-  // Filter and sort products
   const filteredProducts = products
     .filter(product => 
       product.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -63,6 +69,17 @@ export default function ProductsPage() {
       }
     });
 
+  // Reset page to 1 whenever filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, selectedCategories, priceRange, sortBy]);
+
+  const totalPages = Math.ceil(filteredProducts.length / PRODUCTS_PER_PAGE);
+  const paginatedProducts = filteredProducts.slice(
+    (currentPage - 1) * PRODUCTS_PER_PAGE,
+    currentPage * PRODUCTS_PER_PAGE
+  );
+
   const toggleCategory = (category) => {
     setSelectedCategories(prev =>
       prev.includes(category)
@@ -74,7 +91,7 @@ export default function ProductsPage() {
   const clearFilters = () => {
     setSearchTerm("");
     setSelectedCategories([]);
-    setPriceRange([0, 1000]);
+    setPriceRange([0, maxPrice]);
     setSortBy("default");
   };
 
@@ -137,7 +154,7 @@ export default function ProductsPage() {
             />
           </div>
 
-          {/* Sort and View Controls */}
+          {/* Sort and View */}
           <div className="flex gap-4">
             <div className="relative">
               <select
@@ -154,20 +171,7 @@ export default function ProductsPage() {
               <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
             </div>
 
-            <div className="flex border border-gray-200 rounded-xl overflow-hidden">
-              <button
-                onClick={() => setViewMode("grid")}
-                className={`p-3 ${viewMode === "grid" ? "bg-[#3338A0] text-white" : "bg-white text-gray-600"}`}
-              >
-                <Grid size={20} />
-              </button>
-              <button
-                onClick={() => setViewMode("list")}
-                className={`p-3 ${viewMode === "list" ? "bg-[#3338A0] text-white" : "bg-white text-gray-600"}`}
-              >
-                <List size={20} />
-              </button>
-            </div>
+            
 
             <button
               onClick={() => setShowFilters(!showFilters)}
@@ -179,7 +183,7 @@ export default function ProductsPage() {
           </div>
         </div>
 
-        {/* Filters Panel */}
+        {/* Filters */}
         <AnimatePresence>
           {showFilters && (
             <motion.div
@@ -225,7 +229,7 @@ export default function ProductsPage() {
                   </div>
                 </div>
 
-                {/* Price Range */}
+                {/* Price */}
                 <div>
                   <h4 className="font-medium mb-3">Price Range</h4>
                   <div className="space-y-4">
@@ -248,15 +252,13 @@ export default function ProductsPage() {
                     <input
                       type="range"
                       min="0"
-                      max="1000"
+                      max={maxPrice}
                       value={priceRange[1]}
                       onChange={(e) => setPriceRange([priceRange[0], Number(e.target.value)])}
                       className="w-full"
                     />
                   </div>
                 </div>
-
-                {/* Other filters can be added here */}
               </div>
             </motion.div>
           )}
@@ -265,7 +267,7 @@ export default function ProductsPage() {
         {/* Results count */}
         <div className="flex justify-between items-center mb-6">
           <p className="text-gray-600">
-            Showing {filteredProducts.length} of {products.length} products
+            Showing {paginatedProducts.length} of {filteredProducts.length} products
           </p>
           {selectedCategories.length > 0 && (
             <div className="flex gap-2">
@@ -282,14 +284,10 @@ export default function ProductsPage() {
         </div>
 
         {/* Products Grid */}
-        {filteredProducts.length > 0 ? (
-          <div className={`grid gap-8 ${
-            viewMode === "grid" 
-              ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-4" 
-              : "grid-cols-1"
-          }`}>
+        {paginatedProducts.length > 0 ? (
+          <div className={`grid gap-8 ${viewMode === "grid" ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-4" : "grid-cols-1"}`}>
             <AnimatePresence>
-              {filteredProducts.map((product, index) => (
+              {paginatedProducts.map((product, index) => (
                 <motion.div
                   key={product._id}
                   initial={{ opacity: 0, y: 20 }}
@@ -313,6 +311,39 @@ export default function ProductsPage() {
               className="bg-[#3338A0] text-white px-6 py-3 rounded-lg hover:bg-[#2a2e85] transition-colors"
             >
               Clear Filters
+            </button>
+          </div>
+        )}
+
+        {/* Pagination Controls */}
+        {totalPages > 1 && (
+          <div className="flex justify-center items-center mt-12 space-x-2">
+            <button
+              onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+              className="p-2 border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              <ChevronLeft size={20} />
+            </button>
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+              <button
+                key={page}
+                onClick={() => setCurrentPage(page)}
+                className={`w-10 h-10 rounded-lg font-semibold transition-colors ${
+                  currentPage === page
+                    ? "bg-[#3338A0] text-white"
+                    : "bg-white text-gray-600 border border-gray-300 hover:bg-gray-100"
+                }`}
+              >
+                {page}
+              </button>
+            ))}
+            <button
+              onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+              disabled={currentPage === totalPages}
+              className="p-2 border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              <ChevronRight size={20} />
             </button>
           </div>
         )}
