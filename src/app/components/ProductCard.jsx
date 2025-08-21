@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 
-export default function ProductCard({ product }) {
+export default function   ProductCard({ product }) {
   const [isLiked, setIsLiked] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -112,6 +112,7 @@ export default function ProductCard({ product }) {
           {product.title || product.name}
         </h3>
         
+        
         {/* Available Sizes */}
         {product.size && product.size.length > 0 && (
           <div className="flex items-center gap-2 mb-4">
@@ -151,6 +152,9 @@ export default function ProductCard({ product }) {
             <span>In Stock</span>
           </div>
         </div>
+        <h3 className="font-semibold text-gray-900 mb-2 line-clamp-1 group-hover:text-[#3338A0] transition-colors">
+          {product.description	 || product.name}
+        </h3>
         
         {/* Details Link */}
         <Link
