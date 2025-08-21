@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import toast, { Toaster } from "react-hot-toast";
 import {
   Star,
   Heart,
@@ -15,6 +16,7 @@ import {
   RotateCcw,
   Plus,
   Minus,
+  Loader2,
 } from "lucide-react";
 
 export default function ProductDetails({ product }) {
@@ -23,16 +25,15 @@ export default function ProductDetails({ product }) {
   const [isLiked, setIsLiked] = useState(false);
   const [selectedSize, setSelectedSize] = useState(product.size[0]);
   const [selectedColor, setSelectedColor] = useState(product.color);
+  const [loading, setLoading] = useState(false);
 
-  // Mock multiple images for gallery
   const productImages = [
     product.image,
-    product.image, // In real app, these would be different images
+    product.image,
     product.image,
     product.image,
   ];
 
-  // Generate random rating between 4.0 and 5.0
   const rating = (4 + Math.random() * 1).toFixed(1);
   const reviewCount = Math.floor(Math.random() * 100) + 15;
 
@@ -41,20 +42,42 @@ export default function ProductDetails({ product }) {
   };
 
   const prevImage = () => {
-    setSelectedImage(
-      (prev) => (prev - 1 + productImages.length) % productImages.length
-    );
+    setSelectedImage((prev) => (prev - 1 + productImages.length) % productImages.length);
   };
 
   const increaseQuantity = () => setQuantity((prev) => prev + 1);
   const decreaseQuantity = () => setQuantity((prev) => Math.max(1, prev - 1));
 
+  const handleAddToCart = () => {
+    setLoading(true);
+    setTimeout(() => {
+      setLoading(false);
+      toast.success(`${product.title} added to cart!`);
+    }, 1500);
+  };
+
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8">
+    <div className="max-w-7xl mx-auto px-4 py-8 relative">
+      {/* Toast container */}
+      <Toaster position="top-right" />
+
+      {/* Loading Spinner Overlay */}
+      <AnimatePresence>
+        {loading && (
+          <motion.div
+            className="absolute inset-0 bg-white/70 backdrop-blur-sm flex items-center justify-center z-50"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <Loader2 className="w-12 h-12 text-[#3338A0] animate-spin" />
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
         {/* Image Gallery */}
         <div className="space-y-4">
-          {/* Main Image */}
           <div className="relative aspect-square overflow-hidden rounded-2xl bg-gray-100">
             <motion.img
               key={selectedImage}
@@ -65,8 +88,6 @@ export default function ProductDetails({ product }) {
               animate={{ opacity: 1 }}
               transition={{ duration: 0.3 }}
             />
-
-            {/* Navigation Arrows */}
             <button
               onClick={prevImage}
               className="absolute left-4 top-1/2 transform -translate-y-1/2 w-10 h-10 bg-white/80 rounded-full flex items-center justify-center shadow-lg hover:bg-white transition-colors"
@@ -79,22 +100,17 @@ export default function ProductDetails({ product }) {
             >
               <ChevronRight size={24} />
             </button>
-
-            {/* Favorite Button */}
             <button
               onClick={() => setIsLiked(!isLiked)}
               className="absolute top-4 right-4 w-10 h-10 bg-white/80 rounded-full flex items-center justify-center shadow-lg hover:bg-white transition-colors"
             >
               <Heart
                 size={20}
-                className={
-                  isLiked ? "text-red-500 fill-current" : "text-gray-600"
-                }
+                className={isLiked ? "text-red-500 fill-current" : "text-gray-600"}
               />
             </button>
           </div>
 
-          {/* Thumbnail Gallery */}
           <div className="grid grid-cols-4 gap-3">
             {productImages.map((image, index) => (
               <button
@@ -118,51 +134,29 @@ export default function ProductDetails({ product }) {
 
         {/* Product Info */}
         <div className="space-y-6">
-          {/* Breadcrumb */}
           <nav className="text-sm text-gray-500">
             Home / {product.category} / {product.brand}
           </nav>
-
-          {/* Title & Brand */}
           <div>
-            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
-              {product.title}
-            </h1>
-            <p className="text-lg text-[#C59560] font-medium">
-              By {product.brand}
-            </p>
+            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">{product.title}</h1>
+            <p className="text-lg text-[#C59560] font-medium">By {product.brand}</p>
           </div>
-
-          {/* Rating */}
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-1">
               {[...Array(5)].map((_, i) => (
                 <Star
                   key={i}
                   size={16}
-                  className={
-                    i < Math.floor(rating)
-                      ? "text-[#FCC61D] fill-current"
-                      : "text-gray-300"
-                  }
+                  className={i < Math.floor(rating) ? "text-[#FCC61D] fill-current" : "text-gray-300"}
                 />
               ))}
             </div>
-            <span className="text-gray-600">
-              {rating} ({reviewCount} reviews)
-            </span>
+            <span className="text-gray-600">{rating} ({reviewCount} reviews)</span>
           </div>
 
-          {/* Price */}
           <div className="flex items-center gap-4">
-            <span className="text-3xl font-bold text-[#3338A0]">
-              ${product.price}
-            </span>
-            {product.originalPrice && (
-              <span className="text-xl text-gray-400 line-through">
-                ${product.originalPrice}
-              </span>
-            )}
+            <span className="text-3xl font-bold text-[#3338A0]">${product.price}</span>
+            {product.originalPrice && <span className="text-xl text-gray-400 line-through">${product.originalPrice}</span>}
             {product.discount && (
               <span className="bg-[#FCC61D] text-[#3338A0] px-3 py-1 rounded-full text-sm font-bold">
                 Save {product.discount}%
@@ -170,11 +164,9 @@ export default function ProductDetails({ product }) {
             )}
           </div>
 
-          {/* Color Selection */}
+          {/* Color & Size */}
           <div>
-            <h3 className="text-lg font-semibold mb-3">
-              Color: {selectedColor}
-            </h3>
+            <h3 className="text-lg font-semibold mb-3">Color: {selectedColor}</h3>
             <div className="flex gap-2">
               {[product.color, "Black", "White", "Blue"].map((color) => (
                 <button
@@ -192,7 +184,6 @@ export default function ProductDetails({ product }) {
             </div>
           </div>
 
-          {/* Size Selection */}
           <div>
             <h3 className="text-lg font-semibold mb-3">Size</h3>
             <div className="flex flex-wrap gap-2">
@@ -223,9 +214,7 @@ export default function ProductDetails({ product }) {
                 >
                   <Minus size={16} />
                 </button>
-                <span className="px-4 py-2 text-lg font-medium">
-                  {quantity}
-                </span>
+                <span className="px-4 py-2 text-lg font-medium">{quantity}</span>
                 <button
                   onClick={increaseQuantity}
                   className="p-3 hover:bg-gray-50 transition-colors"
@@ -233,9 +222,7 @@ export default function ProductDetails({ product }) {
                   <Plus size={16} />
                 </button>
               </div>
-              <span className="text-sm text-gray-500">
-                {product.stock} available in stock
-              </span>
+              <span className="text-sm text-gray-500">{product.stock} available in stock</span>
             </div>
           </div>
 
@@ -244,15 +231,16 @@ export default function ProductDetails({ product }) {
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              className="flex-1 bg-[#3338A0] text-white py-4 px-6 rounded-xl font-semibold flex items-center justify-center gap-2 hover:bg-[#2a2e85] transition-colors"
+              onClick={handleAddToCart}
+              disabled={loading}
+              className="flex-1 bg-[#3338A0] text-white py-4 px-6 rounded-xl font-semibold flex items-center justify-center gap-2 hover:bg-[#2a2e85] transition-colors disabled:opacity-70"
             >
-              <ShoppingCart size={20} />
-              Add to Cart
+              {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <><ShoppingCart size={20} /> Add to Cart</>}
             </motion.button>
             <motion.a
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              href="https://wa.me/8801316034237?text=Hello,%20I%20want%20to%20buy%20this%20product"
+              href={`https://wa.me/8801316034237?text=Hello,%20I%20want%20to%20buy%20this%20product`}
               target="_blank"
               rel="noopener noreferrer"
               className="px-6 py-4 border-2 border-[#3338A0] text-[#3338A0] rounded-xl font-semibold hover:bg-[#3338A0] hover:text-white transition-colors"
@@ -293,8 +281,6 @@ export default function ProductDetails({ product }) {
         <h2 className="text-2xl font-bold mb-6">Product Description</h2>
         <div className="prose prose-lg max-w-none">
           <p className="text-gray-700 leading-relaxed">{product.description}</p>
-
-          {/* Features list */}
           <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4">
             {[
               "Premium quality materials",

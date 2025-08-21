@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import ProductDetails from "../../components/ProductDetails";
+import { Loader2 } from "lucide-react";
 
 export default function ProductDetailsPage() {
   const params = useParams();
@@ -20,7 +21,13 @@ export default function ProductDetailsPage() {
       });
   }, [id]);
 
-  if (loading) return <p className="text-center mt-10">Loading...</p>;
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <Loader2 className="w-12 h-12 animate-spin text-[#3338A0]" />
+      </div>
+    );
+  }
   if (!product) return <p className="text-center mt-10 text-red-500">Product not found</p>;
 
   return <ProductDetails product={product} />;

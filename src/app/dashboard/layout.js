@@ -45,6 +45,9 @@ export default function DashboardLayout({ children }) {
           <Link href="/dashboard/add-product" onClick={() => setIsSidebarOpen(false)} className="hover:text-gray-300">
             ➕ Add Product
           </Link>
+          <Link href="/dashboard/update-delete" onClick={() => setIsSidebarOpen(false)} className="hover:text-gray-300">
+            ❌ Update Or Delete
+          </Link>
         </nav>
       </aside>
 

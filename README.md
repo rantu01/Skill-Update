@@ -1,36 +1,149 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
-## Getting Started
+# MyShop - Next.js E-Commerce Dashboard
 
-First, run the development server:
+
+
+A simple e-commerce web application built with **Next.js 15** using the **App Router**, **NextAuth.js** for authentication, and **MongoDB** as the database. The application features public product pages and a protected dashboard for product management.
+
+---
+
+## 🚀 Features
+
+### Public Pages
+- Landing page with **Navbar**, **Hero section**, **Product Highlights**, and **Footer**.
+- Product list page (`/products`) displaying all products.
+- Product details page (`/products/[id]`) for viewing full product information.
+- No authentication required to browse products.
+
+### Authentication
+- **Login** via **NextAuth.js** (Google OAuth or credentials).
+- Redirects users to `/dashboard` after successful login.
+- Protected routes only accessible by authenticated users.
+
+### Dashboard (Protected)
+- Add new products (`/dashboard/add-product`) with name, description, and price.
+- Update and delete existing products (`/dashboard/manage-products`).
+- Sidebar navigation for dashboard sections.
+- Responsive design with mobile-friendly sidebar toggle.
+
+### Optional Enhancements
+- Loading spinners during API calls.
+- Toast messages on successful product add/update/delete.
+- Light/Dark theme toggle (can be added to Navbar).
+
+---
+
+## 🛠 Technologies Used
+- **Next.js 15 (App Router)**
+- **NextAuth.js** (Authentication)
+- **MongoDB** (Database)
+- **React & Tailwind CSS** (Frontend)
+- **Lucide Icons** (Dashboard icons)
+- **Vercel** (Deployment)
+
+---
+
+## 📁 Folder Structure
+
+```
+
+app/
+├─ (site)/
+│  ├─ layout.js          # Main layout with Navbar & Footer
+│  ├─ page.js            # Landing page
+│  ├─ products/
+│  │  ├─ page.js         # Product list
+│  │  └─ \[id]/page.js    # Product details
+│
+├─ (dashboard)/
+│  ├─ layout.js          # Dashboard layout with sidebar
+│  ├─ add-product/page.js
+│  └─ manage-products/page.js
+│
+├─ api/
+│  └─ products/
+│     ├─ add/route.js
+│     └─ \[id]/route.js   # GET, PATCH, DELETE
+│
+components/
+├─ Navbar.js
+├─ Footer.js
+├─ AddProductForm.js
+├─ ProductUpdateForm.js
+└─ AuthProvider.js
+
+lib/
+└─ mongodb.js            # MongoDB connection
+
+````
+
+---
+
+## ⚙ Setup & Installation
+
+1. **Clone the repository**
+```bash
+git clone https://github.com/rantu01/Skill-Update.git
+cd myshop
+````
+
+2. **Install dependencies**
+
+```bash
+npm install
+```
+
+3. **Environment Variables**
+
+Create a `.env.local` file:
+
+```
+MONGODB_URI=<Your MongoDB connection string>
+NEXTAUTH_SECRET=<Random secret string>
+GOOGLE_CLIENT_ID=<Google OAuth Client ID>
+GOOGLE_CLIENT_SECRET=<Google OAuth Client Secret>
+NEXTAUTH_URL=http://localhost:3000
+```
+
+4. **Run the development server**
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+5. **Access the app**
+   Open [http://localhost:3000](http://localhost:3000)
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🔗 Routes Summary
 
-## Learn More
+| Route                        | Description            | Authentication |
+| ---------------------------- | ---------------------- | -------------- |
+| `/`                          | Landing page           | Public         |
+| `/products`                  | Product list           | Public         |
+| `/products/[id]`             | Product details        | Public         |
+| `/login`                     | Login page             | Public         |
+| `/dashboard/add-product`     | Add new product        | Protected      |
+| `/dashboard/manage-products` | Update/Delete products | Protected      |
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 📌 Notes
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+* Only authenticated users can access dashboard routes. Unauthenticated users are redirected to login.
+* Error and 404 pages are **standalone layouts**, Navbar and Footer are hidden on these pages.
+* MongoDB is used as a backend database. You can switch to a different database by updating the API routes.
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 🌐 Live Demo
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+[Live Site on Vercel](https://first-next-app-q8cw.vercel.app)
+
+---
+
+## 📄 License
+
+MIT License © \[Rantu Mondal]
+

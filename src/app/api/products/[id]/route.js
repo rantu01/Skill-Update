@@ -30,9 +30,9 @@ export async function PATCH(req) {
   try {
     const { searchParams } = new URL(req.url);
     const id = searchParams.get("id");
-    const { name, description, price } = await req.json();
+    const { title, description, price } = await req.json();
 
-    if (!id || !name || !description || !price)
+    if (!id || !title || !description || !price)
       return new Response(JSON.stringify({ error: "Missing fields" }), { status: 400 });
 
     const client = await clientPromise;
@@ -40,7 +40,7 @@ export async function PATCH(req) {
 
     await db.collection("products").updateOne(
       { _id: new ObjectId(id) },
-      { $set: { name, description, price: parseFloat(price) } }
+      { $set: { title, description, price: parseFloat(price) } }
     );
 
     return new Response(JSON.stringify({ message: "Product updated" }), { status: 200 });

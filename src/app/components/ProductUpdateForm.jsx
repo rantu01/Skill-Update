@@ -1,14 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Swal from "sweetalert2";
 
 export default function ProductUpdateForm({ product, onUpdated }) {
-  const [formData, setFormData] = useState({ name: "", description: "", price: "" });
+  const [formData, setFormData] = useState({ title: "", description: "", price: "" });
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState("");
 
   useEffect(() => {
-    if (product) setFormData({ name: product.name, description: product.description, price: product.price });
+    if (product) setFormData({ title: product.title, description: product.description, price: product.price });
   }, [product]);
 
   const handleChange = e => setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -16,7 +16,6 @@ export default function ProductUpdateForm({ product, onUpdated }) {
   const handleSubmit = async e => {
     e.preventDefault();
     setLoading(true);
-    setMessage("");
 
     try {
       const res = await fetch(`/api/products/${product._id}?id=${product._id}`, {
@@ -25,33 +24,70 @@ export default function ProductUpdateForm({ product, onUpdated }) {
         body: JSON.stringify(formData),
       });
       const data = await res.json();
+
       if (res.ok) {
-        setMessage("✅ Product updated successfully!");
+        await Swal.fire({
+          icon: "success",
+          title: "Updated!",
+          text: "Product updated successfully",
+        });
         onUpdated();
       } else {
-        setMessage(`❌ ${data.error}`);
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: data.error || "Something went wrong",
+        });
       }
     } catch {
-      setMessage("❌ Something went wrong");
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Something went wrong",
+      });
     } finally {
       setLoading(false);
     }
   };
 
   const handleDelete = async () => {
-    if (!confirm("Are you sure you want to delete this product?")) return;
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, delete it!",
+    });
+
+    if (!result.isConfirmed) return;
+
     setLoading(true);
     try {
       const res = await fetch(`/api/products/${product._id}?id=${product._id}`, { method: "DELETE" });
       const data = await res.json();
+
       if (res.ok) {
-        setMessage("✅ Product deleted successfully!");
+        await Swal.fire({
+          icon: "success",
+          title: "Deleted!",
+          text: "Product deleted successfully",
+        });
         onUpdated();
       } else {
-        setMessage(`❌ ${data.error}`);
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: data.error || "Something went wrong",
+        });
       }
     } catch {
-      setMessage("❌ Something went wrong");
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Something went wrong",
+      });
     } finally {
       setLoading(false);
     }
@@ -61,10 +97,10 @@ export default function ProductUpdateForm({ product, onUpdated }) {
     <form onSubmit={handleSubmit} className="max-w-md mx-auto bg-white p-6 rounded-xl shadow flex flex-col gap-4">
       <input
         type="text"
-        name="name"
-        value={formData.name}
+        name="title"
+        value={formData.title}
         onChange={handleChange}
-        placeholder="Product Name"
+        placeholder="Product Title"
         required
         className="border px-4 py-2 rounded"
       />
@@ -93,7 +129,6 @@ export default function ProductUpdateForm({ product, onUpdated }) {
           {loading ? "Deleting..." : "Delete"}
         </button>
       </div>
-      {message && <p className="text-center">{message}</p>}
     </form>
   );
 }
